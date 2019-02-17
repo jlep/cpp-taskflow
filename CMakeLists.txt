@@ -16,7 +16,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2")
 ## clang++
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.0")
     message(FATAL_ERROR "\nCpp-Taskflow requires clang++ at least v6.0")
   endif() 
