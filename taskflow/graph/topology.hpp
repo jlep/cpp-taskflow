@@ -65,7 +65,7 @@ inline Topology::Topology(Framework& f, P&& p):
 // Constructor
 inline Topology::Topology(Graph&& t) : 
   _handle {std::move(t)} {
-  _bind(std::get<Graph>(_handle));
+  _bind(*std::get_if<Graph>(&_handle));
 }
 
 
@@ -75,7 +75,7 @@ inline Topology::Topology(Graph&& t, C&& c) :
   _handle {std::move(t)},
   _work   {std::forward<C>(c)} {
 
-  _bind(std::get<Graph>(_handle));
+  _bind(*std::get_if<Graph>(&_handle));
 }
 
 // Procedure: _bind
@@ -112,18 +112,15 @@ inline void Topology::dump(std::ostream& os) const {
   
   os << "digraph Topology {\n";
 
-  std::visit(Functors{
-    [&] (const Graph& graph) {
-      for(const auto& node : graph) {
-        node.dump(os);
-      }
-    },
-    [&] (const Framework* framework) {
-      for(const auto& node : framework->_graph) {
-        node.dump(os);
-      }
+  if (auto graph = std::get_if<Graph>(&_handle); graph != nullptr) {
+    for (const auto& node : *graph) {
+      node.dump(os);
     }
-  }, _handle);
+  } else if (auto framework = std::get_if<Framework*>(&_handle); framework != nullptr) {
+    for (const auto& node : (*framework)->_graph) {
+      node.dump(os);
+    }
+  }
 
   os << "}\n";
 }

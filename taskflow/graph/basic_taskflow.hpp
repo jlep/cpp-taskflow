@@ -391,8 +391,8 @@ void BasicTaskflow<E>::Closure::operator () () const {
   // regular node type
   // The default node work type. We only need to execute the callback if any.
   if(auto index=node->_work.index(); index == 0) {
-    if(auto &f = std::get<StaticWork>(node->_work); f != nullptr){
-      std::invoke(f);
+    if(auto f = std::get_if<StaticWork>(&node->_work); f != nullptr && *f != nullptr) {
+      std::invoke(*f);
     }
   }
   // subflow node type 
@@ -405,7 +405,9 @@ void BasicTaskflow<E>::Closure::operator () () const {
    
     SubflowBuilder fb(*(node->_subgraph));
 
-    std::invoke(std::get<DynamicWork>(node->_work), fb);
+    if(auto f = std::get_if<DynamicWork>(&node->_work); f != nullptr && *f != nullptr) {
+      std::invoke(*f, fb);
+    }
     
     // Need to create a subflow if first time & subgraph is not empty 
     if(!node->is_spawned()) {
